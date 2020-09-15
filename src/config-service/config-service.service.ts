@@ -32,21 +32,24 @@ export class ConfigService implements IConfigService {
   
   constructor(
     private httpClient: HttpClient
-    ) {console.log('constructor called');}
+    ) {}
 
   // Load the content of config file
   loadConfigFile(path: string) {
     const file = path;
+    return new Promise<void>((resolve, reject) => {
       this.httpClient.get(file, {responseType: 'text'}).toPromise().then((response: any) =>{
-        console.log(response);
         this.parseConfigFile(response);
+        resolve();
+      }).catch((response: any) => {
+        reject("Could not load the file");
       });
+    });
 
   }
 
   // Go through the file and save relevant/valid values
   private parseConfigFile(content: string) {
-    console.log("parsing");
     var nextIndex = content.indexOf('\n');
     while(nextIndex > -1) {
       var currentLine = content.substr(0, nextIndex); //currentLine will NOT have the newLine char
@@ -56,12 +59,10 @@ export class ConfigService implements IConfigService {
     }
     // run once more as we are at the EOF
     this.processLine(content.trim());
-    console.log(this.config);
   }
 
   // Figure out what to do with a line of config file text
   private processLine(input: string) {
-    console.log("processing: " + input);
     if (input.charAt(0) == '#') return; // ignore comment lines
     var splitStrings = input.split("=");
     var value = splitStrings[1].trim();
@@ -103,8 +104,7 @@ export class ConfigService implements IConfigService {
     var newConfig = {};
     // will not work correctly if config file is allowed to have arrays/lists
     keys.forEach(key => {
-      // forces new string creation
-      newConfig[key] = "" + this.config[key];
+      newConfig[key] = this.config[key];
     });
     return newConfig;
   }

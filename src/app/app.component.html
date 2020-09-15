@@ -1,1 +1,8 @@
-<div>Running</div>
+<div>
+<div class="form-group">
+  <label for="fieldName">Parameter Name:</label>
+  <input type="text" #paramName class="form-control">
+</div>
+<button type="button" (click) = showValue(paramName.value)>Go</button>
+<p>{{selectedValue}}</p>
+</div>
